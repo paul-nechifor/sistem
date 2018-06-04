@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -e
+
+apt-get install -y libncurses5-dev
+
+cd /builder/sources/vim
+dist="/home/p/.sistem/dist"
+vim_options=(
+	--disable-gui
+	--disable-netbeans
+	--enable-cscope
+	--enable-largefile
+	--enable-multibyte
+	# --enable-pythoninterp
+	--with-features=huge
+	# --with-python-config-dir="$dist/lib/python2.7/config"
+	--without-x
+)
+export LDFLAGS='-static'
+./configure "${vim_options[@]}" --prefix="$dist"
+make install
