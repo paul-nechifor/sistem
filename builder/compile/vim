@@ -2,21 +2,33 @@
 
 set -e
 
-apt-get install -y libncurses5-dev
+tmpdir=/tmp/py
+mkdir $tmpdir
+cd "$tmpdir"
+cd /builder/sources/python
+export PATH="$PATH:$tmpdir/bin"
+./configure --prefix="$tmpdir"
+make -j "$(nproc)" && make altinstall
+(cd $tmpdir/bin; ln -s python2.7 python2)
+
+dist="/home/p/.sistem/dist"
 
 cd /builder/sources/vim
-dist="/home/p/.sistem/dist"
 vim_options=(
-	--disable-gui
-	--disable-netbeans
-	--enable-cscope
-	--enable-largefile
-	--enable-multibyte
-	# --enable-pythoninterp
-	--with-features=huge
-	# --with-python-config-dir="$dist/lib/python2.7/config"
-	--without-x
+    --disable-gui
+    --disable-netbeans
+    --enable-cscope
+    --enable-largefile
+    --enable-multibyte
+    #--enable-python3interp
+    --enable-pythoninterp
+    --with-features=huge
+    --with-python-config-dir=$tmpdir/lib/python2.7/config
+    --enable-fail-if-missing
+    #--with-python3-config-dir=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu
+    --without-x
 )
 export LDFLAGS='-static'
+export EXTRA_LIBS='-lz'
 ./configure "${vim_options[@]}" --prefix="$dist"
-make install
+make -j"$(nproc)" install
